@@ -1,0 +1,90 @@
+.report-detail {
+  padding: 1rem 0;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.back-link {
+  color: var(--color-primary);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.back-link:hover {
+  text-decoration: underline;
+}
+
+.report-info {
+  margin-bottom: 1.5rem;
+}
+
+.report-title {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.report-title h1 {
+  font-size: 1.5rem;
+}
+
+.report-meta {
+  display: flex;
+  gap: 2rem;
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+}
+
+.report-content h2 {
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+  color: var(--color-text);
+}
+
+.content-body h1 {
+  font-size: 1.5rem;
+  margin: 1.5rem 0 1rem;
+  color: var(--color-text);
+}
+
+.content-body h2 {
+  font-size: 1.25rem;
+  margin: 1.25rem 0 0.75rem;
+  color: var(--color-text);
+}
+
+.content-body h3 {
+  font-size: 1.1rem;
+  margin: 1rem 0 0.5rem;
+  color: var(--color-text);
+}
+
+.content-body p {
+  margin-bottom: 0.75rem;
+  line-height: 1.8;
+}
+
+.error-card {
+  border-left: 4px solid var(--color-danger);
+}
+
+.error-card h2 {
+  color: var(--color-danger);
+  margin-bottom: 0.5rem;
+}
+
+.loading, .error {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: var(--color-text-secondary);
+}
+
+.error {
+  color: var(--color-danger);
+}
