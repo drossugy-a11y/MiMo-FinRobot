@@ -93,3 +93,28 @@ body {
   background: #fee2e2;
   color: #991b1b;
 }
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.loading, .error {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: var(--color-text-secondary);
+}
+
+.error {
+  color: var(--color-danger);
+}
+
+.chart-grid {
+  stroke: var(--color-border);
+}
+
+.chart-axis {
+  stroke: var(--color-text-secondary);
+}

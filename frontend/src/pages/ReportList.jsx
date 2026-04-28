@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { useReports, uploadReport, processReport, deleteReport } from '../hooks/useApi'
+import StatusBadge from '../components/StatusBadge'
 import './ReportList.css'
 
 function ReportList() {
@@ -8,7 +9,7 @@ function ReportList() {
   const [uploading, setUploading] = useState(false)
   const [processing, setProcessing] = useState(null)
 
-  const handleUpload = async (e) => {
+  const handleUpload = useCallback(async (e) => {
     const file = e.target.files[0]
     if (!file) return
 
@@ -21,9 +22,9 @@ function ReportList() {
     } finally {
       setUploading(false)
     }
-  }
+  }, [refetch])
 
-  const handleProcess = async (reportId) => {
+  const handleProcess = useCallback(async (reportId) => {
     setProcessing(reportId)
     try {
       await processReport(reportId)
@@ -33,9 +34,9 @@ function ReportList() {
     } finally {
       setProcessing(null)
     }
-  }
+  }, [refetch])
 
-  const handleDelete = async (reportId) => {
+  const handleDelete = useCallback(async (reportId) => {
     if (!confirm('确定要删除这份报告吗？')) return
     try {
       await deleteReport(reportId)
@@ -43,17 +44,7 @@ function ReportList() {
     } catch (err) {
       alert('删除失败: ' + err.message)
     }
-  }
-
-  const getStatusBadge = (status) => {
-    const badges = {
-      pending: <span className="badge badge-pending">待处理</span>,
-      processing: <span className="badge badge-processing">处理中</span>,
-      completed: <span className="badge badge-completed">已完成</span>,
-      failed: <span className="badge badge-failed">失败</span>,
-    }
-    return badges[status] || status
-  }
+  }, [refetch])
 
   if (loading) {
     return <div className="loading">加载中...</div>
@@ -92,11 +83,11 @@ function ReportList() {
                 <h3>
                   <Link to={`/reports/${report.id}`}>{report.title}</Link>
                 </h3>
-                {getStatusBadge(report.status)}
+                <StatusBadge status={report.status} />
               </div>
               <p className="report-filename">{report.filename}</p>
               <div className="report-meta">
-                <span>Token: {report.token_usage.toLocaleString()}</span>
+                <span>Token: {(report.token_usage || 0).toLocaleString()}</span>
                 <span>{new Date(report.created_at).toLocaleDateString('zh-CN')}</span>
               </div>
               <div className="report-actions">

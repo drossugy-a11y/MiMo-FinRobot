@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import axios from 'axios'
 
 const api = axios.create({
@@ -11,22 +11,26 @@ export function useReports() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
-  const fetchReports = async () => {
+  const fetchReports = useCallback(async (signal) => {
     try {
       setLoading(true)
-      const response = await api.get('/reports/')
+      const response = await api.get('/reports/', { signal })
       setReports(response.data.reports || [])
       setError(null)
     } catch (err) {
-      setError(err.message)
+      if (err.name !== 'CanceledError') {
+        setError(err.message)
+      }
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
   useEffect(() => {
-    fetchReports()
-  }, [])
+    const controller = new AbortController()
+    fetchReports(controller.signal)
+    return () => controller.abort()
+  }, [fetchReports])
 
   return { reports, loading, error, refetch: fetchReports }
 }
@@ -36,24 +40,27 @@ export function useReport(id) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
-  useEffect(() => {
-    const fetchReport = async () => {
-      try {
-        setLoading(true)
-        const response = await api.get(`/reports/${id}`)
-        setReport(response.data)
-        setError(null)
-      } catch (err) {
+  const fetchReport = useCallback(async (signal) => {
+    if (!id) return
+    try {
+      setLoading(true)
+      const response = await api.get(`/reports/${id}`, { signal })
+      setReport(response.data)
+      setError(null)
+    } catch (err) {
+      if (err.name !== 'CanceledError') {
         setError(err.message)
-      } finally {
-        setLoading(false)
       }
-    }
-
-    if (id) {
-      fetchReport()
+    } finally {
+      setLoading(false)
     }
   }, [id])
+
+  useEffect(() => {
+    const controller = new AbortController()
+    fetchReport(controller.signal)
+    return () => controller.abort()
+  }, [fetchReport])
 
   return { report, loading, error }
 }
@@ -63,23 +70,27 @@ export function useBacktests(reportId = null) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
-  const fetchBacktests = async () => {
+  const fetchBacktests = useCallback(async (signal) => {
     try {
       setLoading(true)
       const params = reportId ? { report_id: reportId } : {}
-      const response = await api.get('/backtests/', { params })
+      const response = await api.get('/backtests/', { params, signal })
       setBacktests(response.data || [])
       setError(null)
     } catch (err) {
-      setError(err.message)
+      if (err.name !== 'CanceledError') {
+        setError(err.message)
+      }
     } finally {
       setLoading(false)
     }
-  }
+  }, [reportId])
 
   useEffect(() => {
-    fetchBacktests()
-  }, [reportId])
+    const controller = new AbortController()
+    fetchBacktests(controller.signal)
+    return () => controller.abort()
+  }, [fetchBacktests])
 
   return { backtests, loading, error, refetch: fetchBacktests }
 }

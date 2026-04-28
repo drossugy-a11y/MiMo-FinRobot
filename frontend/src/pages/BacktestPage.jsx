@@ -1,6 +1,6 @@
-import { useState } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { useReports, createBacktest, runBacktest, getBacktestResult } from '../hooks/useApi'
+import { useReports, createBacktest, runBacktest } from '../hooks/useApi'
 import BacktestChart from '../components/BacktestChart'
 import './BacktestPage.css'
 
@@ -16,7 +16,21 @@ function BacktestPage() {
   const [result, setResult] = useState(null)
   const [error, setError] = useState(null)
 
-  const handleRunBacktest = async () => {
+  const completedReports = useMemo(
+    () => reports.filter((r) => r.status === 'completed'),
+    [reports]
+  )
+
+  const equityCurve = useMemo(() => {
+    if (!result?.equity_curve) return []
+    try {
+      return JSON.parse(result.equity_curve)
+    } catch {
+      return []
+    }
+  }, [result?.equity_curve])
+
+  const handleRunBacktest = useCallback(async () => {
     if (!selectedReportId) {
       setError('请选择一份报告')
       return
@@ -40,9 +54,7 @@ function BacktestPage() {
     } finally {
       setRunning(false)
     }
-  }
-
-  const completedReports = reports.filter((r) => r.status === 'completed')
+  }, [selectedReportId, strategyName, initialCapital])
 
   return (
     <div className="backtest-page">
@@ -136,10 +148,10 @@ function BacktestPage() {
             </div>
           </div>
 
-          {result.equity_curve && (
+          {equityCurve.length > 0 && (
             <div className="card chart-card">
               <h2>资金曲线</h2>
-              <BacktestChart data={JSON.parse(result.equity_curve)} />
+              <BacktestChart data={equityCurve} />
             </div>
           )}
         </div>

@@ -1,10 +1,17 @@
+import { useMemo } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { useReport } from '../hooks/useApi'
+import StatusBadge from '../components/StatusBadge'
 import './ReportDetail.css'
 
 function ReportDetail() {
   const { id } = useParams()
   const { report, loading, error } = useReport(id)
+
+  const contentLines = useMemo(() => {
+    if (!report?.content) return []
+    return report.content.split('\n')
+  }, [report?.content])
 
   if (loading) {
     return <div className="loading">加载中...</div>
@@ -16,16 +23,6 @@ function ReportDetail() {
 
   if (!report) {
     return <div className="error">报告不存在</div>
-  }
-
-  const getStatusBadge = (status) => {
-    const badges = {
-      pending: <span className="badge badge-pending">待处理</span>,
-      processing: <span className="badge badge-processing">处理中</span>,
-      completed: <span className="badge badge-completed">已完成</span>,
-      failed: <span className="badge badge-failed">失败</span>,
-    }
-    return badges[status] || status
   }
 
   return (
@@ -46,20 +43,20 @@ function ReportDetail() {
       <div className="card report-info">
         <div className="report-title">
           <h1>{report.title}</h1>
-          {getStatusBadge(report.status)}
+          <StatusBadge status={report.status} />
         </div>
         <div className="report-meta">
           <span>文件: {report.filename}</span>
-          <span>Token消耗: {report.token_usage.toLocaleString()}</span>
+          <span>Token消耗: {(report.token_usage || 0).toLocaleString()}</span>
           <span>创建时间: {new Date(report.created_at).toLocaleString('zh-CN')}</span>
         </div>
       </div>
 
-      {report.status === 'completed' && report.content && (
+      {report.status === 'completed' && contentLines.length > 0 && (
         <div className="card report-content">
           <h2>研报内容</h2>
           <div className="content-body">
-            {report.content.split('\n').map((line, i) => {
+            {contentLines.map((line, i) => {
               if (line.startsWith('# ')) {
                 return <h1 key={i}>{line.slice(2)}</h1>
               }
